@@ -1,7 +1,6 @@
 package com.company;
 
 import com.gargoylesoftware.htmlunit.CookieManager;
-import com.gargoylesoftware.htmlunit.ScriptResult;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
@@ -54,11 +53,6 @@ public class Main {
         {
             GetMovieList(url);
         }
-
-
-
-
-
     }
 
     private static void GetMovieList(String url) throws IOException {
@@ -99,18 +93,18 @@ public class Main {
 
         webClient.setCookieManager(cookieManager);
         HtmlPage page2 = webClient.getPage(datedTicketingUrl);
+        webClient.setJavaScriptTimeout(5000);
         List<HtmlAnchor> byXPath = (List<HtmlAnchor>) page2.getByXPath("//a[@class='CinemaSelectEventPage_Events_DateTimeCell_Link']");
-        byXPath.remove(0);
-        byXPath.remove(1);
 
         for (HtmlAnchor link : byXPath)
         {
-            webClient.getPage(datedTicketingUrl);
+            page2 = webClient.getPage(datedTicketingUrl);
             String script = link.getHrefAttribute();
-            ScriptResult result = page2.executeJavaScript(script.replace("javascript:",""));
-            String s = result.toString();
-            Object javaScriptResult = result.getJavaScriptResult();
-            HtmlPage newPage = (HtmlPage)result.getNewPage(); //TODO get null here, why?
+            if (!script.contains("javascript"))
+                return;
+            HtmlPage newPage = link.click();
+
+
             List<HtmlAnchor> movieName = (List<HtmlAnchor>) newPage.getByXPath("//a[@class='General_Result_Text']");
             if (movieName.size()>0)
                 System.out.println(movieName.get(0).getFirstChild().toString());
