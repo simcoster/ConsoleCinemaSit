@@ -95,7 +95,7 @@ public class MainCinemaCitySiteHandler {
 
 
         for (HtmlAnchor link : byXPath) {
-            Thread.sleep(3000);
+            Thread.sleep(500);
             page2 = webClient.getPage(datedTicketingUrl);
             String script = link.getHrefAttribute();
             if (!script.contains("javascript"))

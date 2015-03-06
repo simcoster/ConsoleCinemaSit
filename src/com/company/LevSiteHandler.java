@@ -1,5 +1,12 @@
 package com.company;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.CookieManager;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.FrameWindow;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.util.Cookie;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -51,9 +58,25 @@ public class LevSiteHandler {
     }
 
     private void GetSits(String sitUrl) throws IOException {
-        Connection.Response tempSitPage = Jsoup.connect(sitUrl).method(Connection.Method.GET).cookies(mainSiteCookies).execute();
-        String sitSiteBody = tempSitPage.body();
-        Document parsedSitSiteBody = Jsoup.parse(sitSiteBody);
+        WebClient webClient = new WebClient(BrowserVersion.FIREFOX_24);
+        webClient.getPage("http://www.lev.co.il/movies");
+        CookieManager cookieManager = webClient.getCookieManager();
+        cookieManager.setCookiesEnabled(true);
+        webClient.waitForBackgroundJavaScript(5000);
+        for (Map.Entry<String, String> entry : mainSiteCookies.entrySet()) {
+            Cookie cookie = new Cookie("www.lev.co.il", entry.getKey(), entry.getValue());
+            cookieManager.addCookie(cookie);
+        }
+        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        webClient.getOptions().setRedirectEnabled(true);
+        webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+        webClient.waitForBackgroundJavaScriptStartingBefore(10*1000);
+        webClient.setCookieManager(cookieManager);
+        HtmlPage page = webClient.getPage(sitUrl);
+        final List<FrameWindow> window = page.getFrames();
+        final HtmlPage pageTwo = (HtmlPage) window.get(0).getEnclosedPage();
+        webClient.getCookieManager().getCookies();
+        page = webClient.getPage(sitUrl);
     }
 
     private void GetTimes(String url) throws IOException {

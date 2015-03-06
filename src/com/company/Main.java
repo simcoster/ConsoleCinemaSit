@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        LevSiteHandler mainCinemaCitySiteHandler =  new LevSiteHandler();
-        mainCinemaCitySiteHandler.GetAvaialbeSeats();
-}
+       LevSiteHandler cinemaCitySiteHandler = new LevSiteHandler();
+        cinemaCitySiteHandler.GetAvaialbeSeats();
+    }
 }
